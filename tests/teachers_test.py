@@ -1,4 +1,5 @@
 def test_get_assignments_teacher_1(client, h_teacher_1):
+    ''' Success Test Case - Get assignment details for a Teacher '''
     response = client.get(
         '/teacher/assignments',
         headers=h_teacher_1
@@ -24,6 +25,19 @@ def test_get_assignments_teacher_2(client, h_teacher_2):
     for assignment in data:
         assert assignment['teacher_id'] == 2
         assert assignment['state'] == 'SUBMITTED'
+
+def test_get_assignments_student_1(client, h_student_1):
+    ''' Success Test Case - Get assignment details for a Student using Teacher's endpoint '''
+    response = client.get(
+        '/teacher/assignments',
+        headers=h_student_1
+    )
+
+    assert response.status_code == 403  
+    data = response.json
+    data["error"] = "FyleError"
+    data["message"] = "requester should be a teacher"
+    
 
 
 def test_grade_assignment_cross(client, h_teacher_2):
@@ -100,3 +114,29 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     data = response.json
 
     assert data['error'] == 'FyleError'
+
+def test_get_assignments_teacher_1(client, h_teacher_1):
+    response = client.get(
+        '/teacher/assignments',
+    )
+    assert response.status_code == 401
+    data = response.json
+    assert data["error"] == "FyleError"
+
+
+def test_grade_assignment(client, h_teacher_1):
+    """
+    success case: If an assignment exists and can be graded with an 'A'
+    """
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_1,
+        json={
+            "id": 1,
+            "grade": "A"
+        }
+    )
+
+    assert response.status_code == 200
+    data = response.json["data"]
+    assert data["state"] == "GRADED"
