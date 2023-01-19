@@ -41,7 +41,6 @@ class AssignmentSubmitSchema(Schema):
 class AssignmentGradeSchema(Schema):
     class Meta:
         unknown = EXCLUDE
-    grades = [g.value for g in GradeEnum]
     id = fields.Integer(required=True, allow_none=False)
     grade = EnumField(GradeEnum)
 
